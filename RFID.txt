@@ -1,25 +1,39 @@
-char Incoming_value=0;
-void setup()
-{
-// put your setup code here, to run once:
-Serial.begin(9600);
-pinMode(13,OUTPUT);
+https://miliohm.com/mfrc522-rfid-reader-with-arduino-tutorial-the-simplest-way-to-read-rfid-tag/#google_vignette
+
+
+#include <deprecated.h>
+#include <MFRC522.h>
+#include <MFRC522Extended.h>
+#include <require_cpp11.h>
+
+#include<SPI.h>
+#include<RFID.h>
+#define SS_PIN 10
+#define RST_PIN 9
+RFID rfid(SS_PIN,RST_PIN);
+String rfidCard;
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  Serial.println("Starting the RFID Reader...");
+  SPI.begin();
+  rfid.init();
+  
 }
-void loop()
-{
-// put your main code here, to run repeatedly:
-if(Serial.available()>0)
-{
-Incoming_value= Serial.read();
-Serial.print(Incoming_value);
-Serial.print("\n");
-if(Incoming_value=='1')
-{
-digitalWrite(13,HIGH);
-}
-else if(Incoming_value=='0')
-{
-digitalWrite(13,LOW);
-}
-}
-}
+
+void loop() {
+  if(rfid.isCard()){
+    if(rfid.readCardSerial()){
+   rfidCard = String(rfid.serNum[0]) + " " + String(rfid.serNum[1]) + " " + String(rfid.serNum[2]) + " " + String(rfid.serNum[3]);
+      Serial.println(rfidCard);
+    }
+    rfid.halt();
+  }
+  
+  if(rfidCard=="250 56 214 46"){
+    Serial.println("Authentication Access..");
+  }
+  else{
+    Serial.println("Authentication Denied..");
+    }
+  }
